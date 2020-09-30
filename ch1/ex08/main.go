@@ -11,7 +11,8 @@ import (
 func main() {
 	for _, url := range os.Args[1:] {
 		if !strings.HasPrefix(url, "http://") {
-			url = fmt.Sprintf("http://%s", url)
+			// url = fmt.Sprintf("http://%s", url)
+			url = "http://" + url
 		}
 		resp, err := http.Get(url)
 		if err != nil {

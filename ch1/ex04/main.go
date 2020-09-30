@@ -26,7 +26,7 @@ func main() {
 	}
 	for line, n := range counts {
 		if n > 1 {
-			fmt.Printf("%d\t %s\t %v\n", n, line)
+			fmt.Printf("%d\t %s\t %v\n", n, line, fileMemory[line])
 		}
 	}
 }
