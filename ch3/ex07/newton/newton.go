@@ -55,7 +55,7 @@ func newton(z complex128) color.Color {
 			if math.Abs(real(z)) < zeroApproximate && math.Abs(imag(z)-1) < zeroApproximate {
 				return color.RGBA{0, 0, 255 - contrast*n, 255}
 			}
-			return color.RGBA{0, 255 - contrast*n, 255 - contrast*n, 255}
+			return color.RGBA{255 - contrast*n, 255 - contrast*n, 255 - contrast*n, 255}
 		}
 	}
 	return color.Black
