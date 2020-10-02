@@ -1,9 +1,10 @@
-package mondelbrot64
+package mondelbrotBigRat
 
 import (
 	"image"
 	"image/color"
 	"image/png"
+	"math/big"
 	"os"
 )
 
@@ -27,13 +28,20 @@ func Mondelbrot() {
 }
 
 func mandelbrot(z complex128) color.Color {
-	const iterations = 200
+	const iterations = 100
 	const contrast = 15
+	zReal := (&big.Rat{}).SetFloat64(real(z))
+	zImag := (&big.Rat{}).SetFloat64(imag(z))
+	var vReal, vImag = &big.Rat{}, &big.Rat{}
 
-	var v complex64
 	for n := uint8(0); n < iterations; n++ {
-		v = v*v + complex64(z)
-		if real(v)*real(v)+imag(v)*imag(v) > 2*2 {
+		vReal2, vImag2 := &big.Rat{}, &big.Rat{}
+		vReal2.Mul(vReal, vReal).Sub(vReal2, (&big.Rat{}).Mul(vImag, vImag)).Add(vReal2, vReal)
+		vImag2.Mul(vReal, vImag).Mul(vImag2, big.NewRat(2, 1)).Add(vImag2, zImag)
+		vReal, vImag = vReal2.Add(vReal2, zReal), vImag2.Add(vImag2, zImag)
+		squareSum := &big.Rat{}
+		squareSum.Mul(vReal, vReal).Add(squareSum, (&big.Rat{}).Mul(vImag, vImag))
+		if squareSum.Cmp(big.NewRat(2*2, 1)) == 1 {
 			return color.Gray{255 - contrast*n}
 		}
 	}
