@@ -44,14 +44,15 @@ func newton(z complex128) color.Color {
 
 	for n := uint8(0); n < iterations; n++ {
 		z = z - (z*z*z*z-1)/(4*z*z*z)
-		if cmplx.Abs(z*z*z*z-1) < 1e-6 {
-			if math.Abs(real(z)-1) < 1e-6 && math.Abs(imag(z)) < 1e-6 {
+		zeroApproximate := 1e-5
+		if cmplx.Abs(z*z*z*z-1) < zeroApproximate {
+			if math.Abs(real(z)-1) < zeroApproximate && math.Abs(imag(z)) < zeroApproximate {
 				return color.RGBA{255 - contrast*n, 0, 0, 255}
 			}
-			if math.Abs(real(z)+1) < 1e-6 && math.Abs(imag(z)) < 1e-6 {
+			if math.Abs(real(z)+1) < zeroApproximate && math.Abs(imag(z)) < zeroApproximate {
 				return color.RGBA{0, 255 - contrast*n, 0, 255}
 			}
-			if math.Abs(real(z)) < 1e-6 && math.Abs(imag(z)-1) < 1e-6 {
+			if math.Abs(real(z)) < zeroApproximate && math.Abs(imag(z)-1) < zeroApproximate {
 				return color.RGBA{0, 0, 255 - contrast*n, 255}
 			}
 			return color.RGBA{0, 255 - contrast*n, 255 - contrast*n, 255}

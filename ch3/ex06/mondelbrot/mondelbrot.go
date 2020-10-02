@@ -53,14 +53,14 @@ func mandelbrot(z complex128) color.Color {
 }
 
 func averageColor(colors []color.Color) color.Color {
-	n := len(colors)
-	var r, g, b, a int
+	n := uint32(len(colors))
+	var r, g, b, a uint32
 	for _, c := range colors {
 		dr, dg, db, da := c.RGBA()
-		r += int(dr)
-		g += int(dg)
-		b += int(db)
-		a += int(da)
+		r += dr & 0xff
+		g += dg & 0xff
+		b += db & 0xff
+		a += da & 0xff
 	}
 	return color.RGBA{uint8(r / n), uint8(g / n), uint8(b / n), uint8(a / n)}
 }
