@@ -166,7 +166,7 @@ func handleRetr(conn net.Conn, texts []string) error {
 	if err != nil {
 		return err
 	}
-	_, err = conn.Write(content)
+	_, err = conn.Write(content) // ftpクライアント側にファイルが生成されない。writeした後の挙動はclient任せではない？
 	if err != nil {
 		return err
 	}
