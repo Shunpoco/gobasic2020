@@ -92,6 +92,13 @@ func dataConn(c net.Conn) {
 					conn.Close()
 				}
 				return
+			case "PWD":
+				cwd, err := os.Getwd()
+				if err != nil {
+					fmt.Fprintln(c, "400 pwd")
+					break
+				}
+				fmt.Fprintln(c, "200", cwd)
 			default:
 				fmt.Fprintln(c, "501 Command not found")
 			}
