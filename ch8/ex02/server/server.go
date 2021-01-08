@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net"
 	"os"
@@ -33,12 +34,10 @@ func main() {
 func dataConn(c net.Conn) {
 	defer c.Close()
 	fmt.Fprintln(c, "220 Welcome to my FTP-server")
-	// dir, err := os.Getwd()
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
 	input := bufio.NewScanner(c)
+
 	var conn net.Conn
+
 	for input.Scan() {
 		texts := strings.Split(input.Text(), " ")
 		fmt.Println(texts)
@@ -52,6 +51,11 @@ func dataConn(c net.Conn) {
 				}
 				fmt.Fprintf(c, "200")
 			case "RETR": // get
+				err := handleRetr(conn, texts)
+				if err != nil {
+					fmt.Fprintln(c, "400")
+					break
+				}
 				fmt.Fprintln(c, "200 RETR")
 			case "STOR": // put
 				fmt.Fprintln(c, "150 STOR")
@@ -148,5 +152,24 @@ func handleList(conn net.Conn, texts []string) error {
 	}
 	results := strings.Replace(out.String(), "\n", "\t", -1)
 	fmt.Fprintln(conn, results)
+	return nil
+}
+
+func handleRetr(conn net.Conn, texts []string) error {
+	if len(texts) < 2 {
+		return fmt.Errorf("no filepath")
+	}
+
+	path := texts[1]
+
+	content, err := ioutil.ReadFile(path)
+	if err != nil {
+		return err
+	}
+	_, err = conn.Write(content)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
