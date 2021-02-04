@@ -92,6 +92,13 @@ func dataConn(c net.Conn) {
 					conn.Close()
 				}
 				return
+			case "PWD":
+				cwd, err := os.Getwd()
+				if err != nil {
+					fmt.Fprintln(c, "400 pwd")
+					break
+				}
+				fmt.Fprintln(c, "200", cwd)
 			default:
 				fmt.Fprintln(c, "501 Command not found")
 			}
@@ -166,7 +173,7 @@ func handleRetr(conn net.Conn, texts []string) error {
 	if err != nil {
 		return err
 	}
-	_, err = conn.Write(content)
+	_, err = conn.Write(content) // ftpクライアント側にファイルが生成されない。writeした後の挙動はclient任せではない？
 	if err != nil {
 		return err
 	}
