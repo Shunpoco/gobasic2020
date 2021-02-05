@@ -1,9 +1,8 @@
-package main
+package sexpr
 
 import (
 	"bytes"
 	"fmt"
-	"log"
 	"reflect"
 )
 
@@ -77,6 +76,21 @@ func encode(buf *bytes.Buffer, v reflect.Value) error {
 			fmt.Fprint(buf, "nil")
 		}
 
+	case reflect.Float32, reflect.Float64:
+		fmt.Fprintf(buf, "%g", v.Float())
+
+	case reflect.Complex64, reflect.Complex128:
+		fmt.Fprintf(buf, "#C(%g, %g)", real(v.Complex()), imag(v.Complex()))
+
+	case reflect.Interface:
+		if v.IsNil() {
+			fmt.Fprintf(buf, "nil")
+		} else {
+			var b bytes.Buffer
+			encode(&b, v.Elem())
+			fmt.Fprintf(buf, "(%q %s)", v.Elem().Type(), b.String())
+		}
+
 	default: // float, complex, bool, chan, func, interface
 		return fmt.Errorf("unsupported type: %s", v.Type())
 	}
@@ -90,45 +104,4 @@ func Marshal(v interface{}) ([]byte, error) {
 		return nil, err
 	}
 	return buf.Bytes(), nil
-}
-
-type Movie struct {
-	Title, Subtitle string
-	Year            int
-	Color           bool
-	Actor           map[string]string
-	Oscars          []string
-	Sequel          *string
-}
-
-func main() {
-	strangelove := Movie{
-		Title:    "Dr. Strangelove",
-		Subtitle: "How I Learned to Stop Worrying and Love the Bomb",
-		Year:     1964,
-		Color:    true,
-		Actor: map[string]string{
-			"Dr. Strangelove":            "Peter Sellers",
-			"Grp. Capt. Lionel Mandrake": "Peter Sellers",
-			"Pres. Merkin Muffley":       "Peter Sellers",
-			"Gen. Buck Turgidson":        "George C. Scott",
-			"Brig. Gen. Jack D. Ripper":  "Sterling Hayden",
-			`Maj. T.J. "King" Kong`:      "Slim Pickens",
-		},
-
-		Oscars: []string{
-			"Best Actor (Nomin.)",
-			"Best Adapted Screenplay (Nomin.)",
-			"Best Director (Nomin.)",
-			"Best Picture (Nomin.)",
-		},
-	}
-
-	s, err := Marshal(strangelove)
-
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Println(string(s))
 }
