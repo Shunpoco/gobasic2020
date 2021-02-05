@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"reflect"
 	"strconv"
+	"strings"
 )
 
 func Display(name string, x interface{}) {
@@ -26,7 +27,7 @@ func display(path string, v reflect.Value) {
 		}
 	case reflect.Map:
 		for _, key := range v.MapKeys() {
-			display(fmt.Sprintf("%s[%s]", path, formatAtom(key)), v.MapIndex(key))
+			display(fmt.Sprintf("%s[%s]", path, formatMapKey(key)), v.MapIndex(key))
 		}
 	case reflect.Ptr:
 		if v.IsNil() {
@@ -62,6 +63,26 @@ func formatAtom(v reflect.Value) string {
 		return v.Type().String() + " 0x" + strconv.FormatUint(uint64(v.Pointer()), 16)
 	default:
 		return v.Type().String() + " value"
+	}
+}
+
+func formatMapKey(v reflect.Value) string {
+	switch v.Kind() {
+	case reflect.Struct:
+		keys := []string{}
+		for i := 0; i < v.NumField(); i++ {
+			keys = append(keys, formatAtom(v.Field(i)))
+		}
+		return "{" + strings.Join(keys, " ") + "}"
+	case reflect.Array:
+		keys := []string{}
+		for i := 0; i < v.Len(); i++ {
+			keys = append(keys, formatAtom(v.Index(i)))
+		}
+		return "[" + strings.Join(keys, " ") + "]"
+	default:
+		return formatAtom(v)
+
 	}
 }
 
